@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>ForensicAI — Document Authentication</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ════════════════════════════════════════════
+   DESIGN SYSTEM — Clean White + Vivid Accents
+════════════════════════════════════════════ */
+:root{
+  --bg:       #f8f9fc;
+  --surface:  #ffffff;
+  --border:   #e8ecf2;
+  --border2:  #d1d9e6;
+  --blue:     #2563eb;
+  --blue-lt:  #eff4ff;
+  --blue-mid: #dbeafe;
+  --green:    #059669;
+  --green-lt: #ecfdf5;
+  --green-mid:#d1fae5;
+  --red:      #dc2626;
+  --red-lt:   #fef2f2;
+  --red-mid:  #fee2e2;
+  --yellow:   #d97706;
+  --yel-lt:   #fffbeb;
+  --yel-mid:  #fef3c7;
+  --text:     #0f172a;
+  --text2:    #334155;
+  --muted:    #64748b;
+  --light:    #94a3b8;
+  --mono:     'DM Mono',monospace;
+  --serif:    'Playfair Display',serif;
+  --sans:     'DM Sans',sans-serif;
+  --r:        14px;
+  --shadow:   0 1px 3px rgba(0,0,0,.06), 0 4px 16px rgba(0,0,0,.04);
+  --shadow-lg:0 4px 24px rgba(0,0,0,.08), 0 1px 4px rgba(0,0,0,.04);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--sans);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* Subtle dot grid */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:radial-gradient(#cbd5e1 1px,transparent 1px);
+  background-size:28px 28px;
+  opacity:.45;
+  pointer-events:none;z-index:0;
+}
+
+.wrap{max-width:1100px;margin:0 auto;padding:0 24px 80px;position:relative;z-index:1}
+
+/* ══ HEADER ══ */
+header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 0 28px;
+  border-bottom:2px solid var(--border);
+  margin-bottom:52px;
+}
+.logo{display:flex;align-items:center;gap:12px}
+.logo-icon{
+  width:42px;height:42px;
+  background:linear-gradient(135deg,var(--blue),#60a5fa);
+  border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;
+  box-shadow:0 4px 14px rgba(37,99,235,.3);
+}
+.logo-name{font-family:var(--serif);font-size:1.5rem;color:var(--text)}
+.logo-sub{font-family:var(--mono);font-size:.65rem;color:var(--muted);letter-spacing:2px;margin-top:1px}
+.status-pill{
+  display:flex;align-items:center;gap:7px;
+  background:var(--green-lt);
+  border:1.5px solid var(--green-mid);
+  color:var(--green);
+  font-family:var(--mono);font-size:.72rem;
+  padding:7px 14px;border-radius:99px;letter-spacing:.5px;
+}
+.status-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ══ HERO ══ */
+.hero{text-align:center;margin-bottom:48px;animation:fadeUp .55s ease both}
+.hero h1{
+  font-family:var(--serif);
+  font-size:clamp(2.2rem,5vw,3.8rem);
+  line-height:1.15;letter-spacing:-.5px;
+  color:var(--text);margin-bottom:16px;
+}
+.hero h1 span{color:var(--blue)}
+.hero p{color:var(--muted);font-size:1.05rem;max-width:540px;margin:0 auto;line-height:1.7}
+
+/* ══ FEATURE PILLS ══ */
+.features{
+  display:flex;flex-wrap:wrap;gap:10px;justify-content:center;
+  margin-top:20px;
+}
+.feat{
+  background:white;border:1.5px solid var(--border);
+  font-size:.8rem;color:var(--text2);font-weight:500;
+  padding:6px 14px;border-radius:99px;
+  box-shadow:var(--shadow);
+}
+
+/* ══ UPLOAD ZONE ══ */
+#upload-zone{
+  background:white;
+  border:2.5px dashed var(--border2);
+  border-radius:20px;
+  padding:68px 32px;
+  text-align:center;
+  cursor:pointer;
+  transition:all .25s;
+  position:relative;overflow:hidden;
+  box-shadow:var(--shadow);
+  animation:fadeUp .55s .1s ease both;
+}
+#upload-zone::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at center,rgba(37,99,235,.04),transparent 70%);
+  opacity:0;transition:opacity .3s;
+}
+#upload-zone:hover,#upload-zone.dragover{
+  border-color:var(--blue);
+  transform:translateY(-3px);
+  box-shadow:0 8px 32px rgba(37,99,235,.12);
+}
+#upload-zone:hover::before{opacity:1}
+.upload-icon-wrap{
+  width:72px;height:72px;
+  background:var(--blue-lt);
+  border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 20px;
+  font-size:2rem;
+  border:2px solid var(--blue-mid);
+}
+#upload-zone h2{font-size:1.25rem;font-weight:700;margin-bottom:8px;color:var(--text)}
+#upload-zone p{color:var(--muted);font-size:.9rem;font-family:var(--mono)}
+.fmt-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+.fmt{
+  background:var(--bg);border:1.5px solid var(--border);
+  font-family:var(--mono);font-size:.72rem;color:var(--muted);
+  padding:4px 11px;border-radius:7px;font-weight:500;
+}
+#file-input{display:none}
+
+/* ══ PREVIEW BAR ══ */
+#preview-bar{
+  display:none;margin-top:18px;
+  background:white;border:1.5px solid var(--border);
+  border-radius:var(--r);padding:18px 22px;
+  align-items:center;gap:18px;
+  box-shadow:var(--shadow);animation:fadeIn .3s ease;
+}
+.prev-thumb{
+  width:70px;height:70px;object-fit:cover;
+  border-radius:10px;border:2px solid var(--border);flex-shrink:0;
+}
+.prev-info{flex:1}
+.prev-info h3{font-size:.95rem;font-weight:600;color:var(--text)}
+.prev-info p{color:var(--muted);font-size:.8rem;font-family:var(--mono);margin-top:3px}
+.scan-btn{
+  padding:14px 32px;
+  background:linear-gradient(135deg,var(--blue),#3b82f6);
+  color:white;font-family:var(--sans);
+  font-weight:700;font-size:.95rem;
+  border:none;border-radius:10px;cursor:pointer;
+  transition:all .2s;white-space:nowrap;
+  box-shadow:0 4px 14px rgba(37,99,235,.3);
+}
+.scan-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 24px rgba(37,99,235,.4)}
+.scan-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* ══ LOADER ══ */
+#loader{display:none;text-align:center;padding:52px 20px;animation:fadeIn .3s ease}
+.loader-ring{
+  width:56px;height:56px;
+  border:3px solid var(--border);
+  border-top-color:var(--blue);
+  border-right-color:#60a5fa;
+  border-radius:50%;
+  margin:0 auto 18px;
+  animation:spin .85s linear infinite;
+}
+.loader-steps{font-family:var(--mono);font-size:.8rem;color:var(--muted);line-height:2.2}
+.loader-step{opacity:.3;transition:opacity .3s}
+.loader-step.active{opacity:1;color:var(--blue);font-weight:500}
+
+/* ══ RESULTS ══ */
+#results{display:none;margin-top:36px;animation:fadeUp .5s ease both}
+
+/* ── Verdict banner ── */
+.verdict-banner{
+  border-radius:18px;padding:30px 36px;
+  display:grid;grid-template-columns:80px 1fr auto;
+  align-items:center;gap:24px;margin-bottom:24px;
+  border:2px solid;
+  box-shadow:var(--shadow-lg);
+  position:relative;overflow:hidden;
+}
+.verdict-banner::before{
+  content:'';position:absolute;top:-60px;right:-60px;
+  width:200px;height:200px;border-radius:50%;opacity:.07;
+}
+.verdict-banner.AUTHENTIC{
+  background:linear-gradient(135deg,var(--green-lt),white);
+  border-color:var(--green-mid);
+}
+.verdict-banner.AUTHENTIC::before{background:var(--green)}
+.verdict-banner.FORGED{
+  background:linear-gradient(135deg,var(--red-lt),white);
+  border-color:var(--red-mid);
+}
+.verdict-banner.FORGED::before{background:var(--red)}
+.verdict-banner.SUSPICIOUS{
+  background:linear-gradient(135deg,var(--yel-lt),white);
+  border-color:var(--yel-mid);
+}
+.verdict-banner.SUSPICIOUS::before{background:var(--yellow)}
+
+.verdict-icon-wrap{
+  width:68px;height:68px;border-radius:16px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:2.2rem;
+}
+.AUTHENTIC .verdict-icon-wrap{background:var(--green-mid)}
+.FORGED    .verdict-icon-wrap{background:var(--red-mid)}
+.SUSPICIOUS .verdict-icon-wrap{background:var(--yel-mid)}
+
+.verdict-label{font-family:var(--serif);font-size:2.4rem;font-weight:800;letter-spacing:-.5px}
+.AUTHENTIC .verdict-label{color:var(--green)}
+.FORGED    .verdict-label{color:var(--red)}
+.SUSPICIOUS .verdict-label{color:var(--yellow)}
+
+.verdict-sub{color:var(--muted);font-size:.9rem;margin-top:5px;font-family:var(--mono)}
+
+/* Score display */
+.score-display{text-align:center}
+.score-circle{
+  width:90px;height:90px;border-radius:50%;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  border:3px solid;
+}
+.AUTHENTIC .score-circle{border-color:var(--green);background:var(--green-lt)}
+.FORGED    .score-circle{border-color:var(--red);  background:var(--red-lt)}
+.SUSPICIOUS .score-circle{border-color:var(--yellow);background:var(--yel-lt)}
+.score-num{font-family:var(--mono);font-size:1.8rem;font-weight:700;line-height:1}
+.AUTHENTIC .score-num{color:var(--green)}
+.FORGED    .score-num{color:var(--red)}
+.SUSPICIOUS .score-num{color:var(--yellow)}
+.score-label{font-family:var(--mono);font-size:.62rem;color:var(--muted);margin-top:2px;letter-spacing:1px}
+
+/* Confidence badge */
+.conf-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 14px;border-radius:99px;
+  font-family:var(--mono);font-size:.78rem;font-weight:600;
+  margin-top:10px;
+}
+.AUTHENTIC .conf-badge{background:var(--green-mid);color:var(--green)}
+.FORGED    .conf-badge{background:var(--red-mid);  color:var(--red)}
+.SUSPICIOUS .conf-badge{background:var(--yel-mid); color:var(--yellow)}
+
+/* ── Summary box ── */
+.summary-box{
+  background:white;border:1.5px solid var(--border);
+  border-radius:var(--r);padding:18px 22px;
+  font-size:.88rem;color:var(--text2);line-height:1.9;
+  margin-bottom:24px;box-shadow:var(--shadow);
+  font-family:var(--mono);
+}
+
+/* ── Chips ── */
+.chips{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:24px}
+.chip{
+  padding:7px 16px;border-radius:99px;
+  font-family:var(--mono);font-size:.78rem;font-weight:500;
+  border:1.5px solid;
+}
+.chip-default{background:white;border-color:var(--border);color:var(--text2)}
+.chip-red   {background:var(--red-lt);border-color:var(--red-mid);color:var(--red)}
+.chip-yellow{background:var(--yel-lt);border-color:var(--yel-mid);color:var(--yellow)}
+.chip-green {background:var(--green-lt);border-color:var(--green-mid);color:var(--green)}
+.chip-blue  {background:var(--blue-lt);border-color:var(--blue-mid);color:var(--blue)}
+
+/* ── Tabs ── */
+.tabs{display:flex;gap:4px;margin-bottom:22px;
+      background:white;padding:5px;border-radius:12px;
+      border:1.5px solid var(--border);box-shadow:var(--shadow);
+      width:fit-content}
+.tab-btn{
+  padding:9px 22px;border-radius:9px;
+  background:transparent;border:none;
+  color:var(--muted);font-family:var(--sans);font-size:.85rem;font-weight:500;
+  cursor:pointer;transition:all .2s;
+}
+.tab-btn.active{
+  background:var(--blue);color:white;
+  box-shadow:0 2px 8px rgba(37,99,235,.3);
+}
+.tab-panel{display:none}
+.tab-panel.active{display:block;animation:fadeIn .3s ease}
+
+/* ── Score Overview ── */
+.score-card{
+  background:white;border:1.5px solid var(--border);
+  border-radius:var(--r);padding:26px;
+  box-shadow:var(--shadow);
+}
+.score-card h3{
+  font-size:.72rem;letter-spacing:2px;color:var(--muted);
+  font-family:var(--mono);margin-bottom:20px;font-weight:600;
+  text-transform:uppercase;
+}
+.score-row{
+  display:grid;grid-template-columns:200px 1fr 52px;
+  align-items:center;gap:14px;margin-bottom:12px;
+}
+.score-name{font-size:.83rem;color:var(--text2);font-weight:500;
+             white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.score-bar-bg{height:9px;background:var(--bg);border-radius:99px;
+               overflow:hidden;border:1px solid var(--border)}
+.score-bar-fill{height:100%;border-radius:99px;transition:width 1.3s cubic-bezier(.4,0,.2,1)}
+.bar-safe{background:linear-gradient(90deg,#10b981,#34d399)}
+.bar-warn{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+.bar-danger{background:linear-gradient(90deg,#ef4444,#f87171)}
+.score-val{font-family:var(--mono);font-size:.78rem;color:var(--muted);text-align:right}
+
+/* ── Check Cards ── */
+.checks-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+.check-card{
+  background:white;border:1.5px solid var(--border);
+  border-radius:var(--r);overflow:hidden;
+  box-shadow:var(--shadow);transition:border-color .2s,box-shadow .2s;
+}
+.check-card:hover{border-color:var(--blue-mid);box-shadow:var(--shadow-lg)}
+.check-card.FAIL{border-left:4px solid var(--red)}
+.check-card.WARN{border-left:4px solid var(--yellow)}
+.check-card.PASS{border-left:4px solid var(--green)}
+.check-card.INFO{border-left:4px solid var(--light)}
+
+.check-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 16px;cursor:pointer;user-select:none;
+}
+.check-title{font-size:.88rem;font-weight:600;color:var(--text)}
+.check-right{display:flex;align-items:center;gap:8px}
+.status-badge{
+  font-family:var(--mono);font-size:.68rem;font-weight:700;
+  padding:3px 9px;border-radius:6px;letter-spacing:.5px;
+}
+.FAIL .status-badge{background:var(--red-lt);color:var(--red);border:1px solid var(--red-mid)}
+.WARN .status-badge{background:var(--yel-lt);color:var(--yellow);border:1px solid var(--yel-mid)}
+.PASS .status-badge{background:var(--green-lt);color:var(--green);border:1px solid var(--green-mid)}
+.INFO .status-badge{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+.check-score-val{font-family:var(--mono);font-size:.78rem;color:var(--muted)}
+.chevron{color:var(--light);transition:transform .2s;font-size:.8rem}
+.check-card.open .chevron{transform:rotate(180deg)}
+
+.check-body{
+  display:none;padding:0 16px 16px;
+  border-top:1px solid var(--border);
+}
+.check-card.open .check-body{display:block}
+
+.mini-bar-bg{height:5px;background:var(--bg);border-radius:99px;
+              margin:12px 0;overflow:hidden;border:1px solid var(--border)}
+.mini-bar-fill{height:100%;border-radius:99px;transition:width 1s ease}
+.check-detail{font-size:.8rem;color:var(--muted);line-height:1.7;margin-bottom:12px}
+
+.lines-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:.74rem}
+.lines-table tr{border-bottom:1px solid rgba(0,0,0,.04)}
+.lines-table tr.susp{background:var(--red-lt)}
+.lines-table tr.susp td{color:var(--red)}
+.lines-table td{padding:6px 8px;vertical-align:top}
+.lines-table td:first-child{color:var(--muted);width:35%;white-space:nowrap}
+.lines-table td:last-child{color:var(--text2);word-break:break-word}
+
+/* ── Visuals ── */
+.visuals-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
+.visual-card{
+  background:white;border:1.5px solid var(--border);
+  border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);
+}
+.visual-title{
+  padding:12px 16px;font-size:.78rem;font-family:var(--mono);
+  color:var(--text2);border-bottom:1px solid var(--border);
+  font-weight:600;letter-spacing:.5px;text-transform:uppercase;
+}
+.visual-hint{font-size:.72rem;color:var(--muted);font-weight:400;display:block;margin-top:2px}
+.visual-card img{width:100%;display:block}
+
+/* ── Reset ── */
+.reset-btn{
+  display:block;width:100%;margin-top:24px;
+  padding:13px;background:white;border:1.5px solid var(--border);
+  border-radius:var(--r);color:var(--muted);
+  font-family:var(--mono);font-size:.82rem;cursor:pointer;
+  transition:all .2s;box-shadow:var(--shadow);
+}
+.reset-btn:hover{border-color:var(--blue);color:var(--blue)}
+
+/* ══ ANIMATIONS ══ */
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes spin  {to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">🔍</div>
+    <div>
+      <div class="logo-name">ForensicAI</div>
+      <div class="logo-sub">DOCUMENT AUTHENTICATION SYSTEM</div>
+    </div>
+  </div>
+  <div class="status-pill">
+    <div class="status-dot"></div>
+    SYSTEM ONLINE
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="hero">
+  <h1>AI-Powered Document<br><span>Forensic Analysis</span></h1>
+  <p>Upload any document to instantly verify authenticity using 15 simultaneous forensic checks powered by deep learning.</p>
+  <div class="features">
+    <span class="feat">⚡ ELA Analysis</span>
+    <span class="feat">🔬 Noise Pattern</span>
+    <span class="feat">🔏 Stamp Detection</span>
+    <span class="feat">✍️ Signature Check</span>
+    <span class="feat">🧠 CNN Deep Learning</span>
+    <span class="feat">📋 OCR Text Analysis</span>
+    <span class="feat">🔄 Copy-Move Detection</span>
+  </div>
+</div>
+
+<!-- UPLOAD ZONE -->
+<div id="upload-zone" onclick="document.getElementById('file-input').click()">
+  <div class="upload-icon-wrap">📄</div>
+  <h2>Drop your document here</h2>
+  <p>or click to browse files</p>
+  <div class="fmt-row">
+    <span class="fmt">JPG</span><span class="fmt">PNG</span>
+    <span class="fmt">BMP</span><span class="fmt">TIFF</span>
+    <span class="fmt">PDF</span>
+  </div>
+  <input type="file" id="file-input" accept=".jpg,.jpeg,.png,.bmp,.tiff,.tif,.pdf"/>
+</div>
+
+<!-- PREVIEW -->
+<div id="preview-bar">
+  <img id="prev-thumb" class="prev-thumb" src="" alt=""/>
+  <div class="prev-info">
+    <h3 id="prev-name">document.jpg</h3>
+    <p id="prev-meta">0 KB</p>
+  </div>
+  <button class="scan-btn" id="scan-btn" onclick="runAnalysis()">
+    🧪 RUN FORENSIC ANALYSIS
+  </button>
+</div>
+
+<!-- LOADER -->
+<div id="loader">
+  <div class="loader-ring"></div>
+  <div class="loader-steps">
+    <div class="loader-step active" id="ls0">Preprocessing image + grayscale conversion...</div>
+    <div class="loader-step"        id="ls1">ELA analysis + DCT frequency checks...</div>
+    <div class="loader-step"        id="ls2">Noise pattern + copy-move detection...</div>
+    <div class="loader-step"        id="ls3">Stamp detection + signature verification...</div>
+    <div class="loader-step"        id="ls4">OCR line-by-line text analysis...</div>
+    <div class="loader-step"        id="ls5">Deep Learning CNN inference...</div>
+    <div class="loader-step"        id="ls6">Computing final forensic verdict...</div>
+  </div>
+</div>
+
+<!-- RESULTS -->
+<div id="results">
+
+  <!-- Verdict -->
+  <div class="verdict-banner" id="verdict-banner">
+    <div class="verdict-icon-wrap" id="v-icon"></div>
+    <div>
+      <div class="verdict-label" id="v-label"></div>
+      <div class="verdict-sub"   id="v-sub"></div>
+      <div class="conf-badge"    id="v-conf"></div>
+    </div>
+    <div class="score-display">
+      <div class="score-circle">
+        <div class="score-num"   id="v-score-num"></div>
+        <div class="score-label">FORGERY<br>SCORE</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-box" id="summary-box"></div>
+
+  <!-- Chips -->
+  <div class="chips" id="chips"></div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('overview',this)">📊 Score Overview</button>
+    <button class="tab-btn"        onclick="switchTab('checks',this)">🔬 Detailed Checks</button>
+    <button class="tab-btn"        onclick="switchTab('visuals',this)">🖼 Visual Analysis</button>
+  </div>
+
+  <div id="tab-overview" class="tab-panel active">
+    <div class="score-card">
+      <h3>Forensic Check Scores</h3>
+      <div id="score-rows"></div>
+    </div>
+  </div>
+
+  <div id="tab-checks" class="tab-panel">
+    <div class="checks-grid" id="checks-grid"></div>
+  </div>
+
+  <div id="tab-visuals" class="tab-panel">
+    <div class="visuals-grid" id="visuals-grid"></div>
+  </div>
+
+  <button class="reset-btn" onclick="resetApp()">↺ Analyze another document</button>
+</div>
+
+</div><!-- /.wrap -->
+
+<script>
+const zone = document.getElementById('upload-zone');
+const fi   = document.getElementById('file-input');
+let selectedFile = null;
+
+zone.addEventListener('dragover', e=>{e.preventDefault();zone.classList.add('dragover')});
+zone.addEventListener('dragleave', ()=>zone.classList.remove('dragover'));
+zone.addEventListener('drop', e=>{
+  e.preventDefault();zone.classList.remove('dragover');
+  const f=e.dataTransfer.files[0]; if(f) handleFile(f);
+});
+fi.addEventListener('change', e=>{if(e.target.files[0]) handleFile(e.target.files[0])});
+
+function handleFile(file){
+  selectedFile = file;
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    const thumb = document.getElementById('prev-thumb');
+    thumb.src   = file.type==='application/pdf'
+      ? 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">📄</text></svg>'
+      : ev.target.result;
+    document.getElementById('prev-name').textContent = file.name;
+    document.getElementById('prev-meta').textContent =
+      (file.size/1024).toFixed(1)+' KB  ·  '+file.type;
+    document.getElementById('preview-bar').style.display  = 'flex';
+    document.getElementById('results').style.display      = 'none';
+    document.getElementById('loader').style.display       = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+let loaderInterval;
+function startLoader(){
+  let step=0;
+  const steps=document.querySelectorAll('.loader-step');
+  steps.forEach(s=>s.classList.remove('active'));
+  steps[0].classList.add('active');
+  loaderInterval=setInterval(()=>{
+    steps[step]?.classList.remove('active');
+    step=(step+1)%steps.length;
+    steps[step]?.classList.add('active');
+  },900);
+}
+function stopLoader(){clearInterval(loaderInterval)}
+
+async function runAnalysis(){
+  if(!selectedFile) return;
+  document.getElementById('scan-btn').disabled=true;
+  document.getElementById('loader').style.display  ='block';
+  document.getElementById('results').style.display ='none';
+  startLoader();
+  const fd=new FormData(); fd.append('file',selectedFile);
+  try{
+    const res  = await fetch('/api/analyze',{method:'POST',body:fd});
+    const data = await res.json();
+    stopLoader();
+    document.getElementById('loader').style.display='none';
+    if(data.error){alert('Error: '+data.error);document.getElementById('scan-btn').disabled=false;return;}
+    renderResults(data);
+  }catch(e){
+    stopLoader();
+    document.getElementById('loader').style.display='none';
+    alert('Server error. Make sure Flask is running: python app.py');
+    document.getElementById('scan-btn').disabled=false;
+  }
+}
+
+function renderResults(data){
+  const v = data.verdict;
+
+  // Set class on banner
+  const banner=document.getElementById('verdict-banner');
+  banner.className='verdict-banner '+v;
+
+  const icons={AUTHENTIC:'✅',FORGED:'⚠️',SUSPICIOUS:'⚡'};
+  document.getElementById('v-icon').textContent  = icons[v]||'❓';
+  document.getElementById('v-label').textContent = v;
+  document.getElementById('v-sub').textContent   =
+    `Processing time: ${data.processing_time}s  ·  ${data.checks.length} checks performed`;
+  document.getElementById('v-conf').textContent  = `Confidence: ${data.confidence}%`;
+  document.getElementById('v-score-num').textContent = data.overall_score;
+
+  // Summary
+  document.getElementById('summary-box').innerHTML=
+    data.summary_lines.map(l=>`<div>${esc(l)}</div>`).join('');
+
+  // Chips
+  const failC=data.checks.filter(c=>c.status==='FAIL').length;
+  const warnC=data.checks.filter(c=>c.status==='WARN').length;
+  const passC=data.checks.filter(c=>c.status==='PASS').length;
+  document.getElementById('chips').innerHTML=`
+    <span class="chip chip-blue">Checks: ${data.checks.length}</span>
+    <span class="chip chip-red">Failed: ${failC}</span>
+    <span class="chip chip-yellow">Warnings: ${warnC}</span>
+    <span class="chip chip-green">Passed: ${passC}</span>
+    <span class="chip chip-default">Time: ${data.processing_time}s</span>
+  `;
+
+  // Score rows
+  const scoreRows=document.getElementById('score-rows');
+  scoreRows.innerHTML='';
+  data.checks.forEach(c=>{
+    const cls = c.score>60?'bar-danger':c.score>30?'bar-warn':'bar-safe';
+    const row=document.createElement('div');
+    row.className='score-row';
+    row.innerHTML=`
+      <div class="score-name" title="${esc(c.name)}">${esc(c.name)}</div>
+      <div class="score-bar-bg">
+        <div class="score-bar-fill ${cls}" data-w="${c.score}" style="width:0%"></div>
+      </div>
+      <div class="score-val">${c.score.toFixed(0)}</div>
+    `;
+    scoreRows.appendChild(row);
+  });
+
+  // Detailed check cards
+  const grid=document.getElementById('checks-grid');
+  grid.innerHTML='';
+  data.checks.forEach(c=>{
+    const cls=c.score>60?'bar-danger':c.score>30?'bar-warn':'bar-safe';
+    let lines='';
+    if(c.lines?.length){
+      lines='<table class="lines-table">';
+      c.lines.forEach(ln=>{
+        lines+=`<tr class="${ln.suspicious?'susp':''}">
+          <td>${esc(ln.line)}</td>
+          <td>${esc(ln.finding)}</td>
+        </tr>`;
+      });
+      lines+='</table>';
+    }
+    const card=document.createElement('div');
+    card.className=`check-card ${c.status}`;
+    card.innerHTML=`
+      <div class="check-header" onclick="toggleCard(this)">
+        <div class="check-title">${esc(c.name)}</div>
+        <div class="check-right">
+          <span class="status-badge">${c.status}</span>
+          <span class="check-score-val">${c.score.toFixed(0)}</span>
+          <span class="chevron">▾</span>
+        </div>
+      </div>
+      <div class="check-body">
+        <div class="mini-bar-bg">
+          <div class="mini-bar-fill ${cls}" data-w="${c.score}" style="width:0%;background:${c.score>60?'#ef4444':c.score>30?'#f59e0b':'#10b981'}"></div>
+        </div>
+        <div class="check-detail">${esc(c.detail)}</div>
+        ${lines}
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  // Visuals
+  const vgrid=document.getElementById('visuals-grid');
+  vgrid.innerHTML='';
+  const visuals=[
+    {title:'GRAYSCALE — Preprocessed Input',key:'grayscale_b64',hint:'Document converted to grayscale before analysis'},
+    {title:'ELA MAP — Error Level Analysis', key:'ela_b64',hint:'Bright areas = compression anomaly = tampering'},
+    {title:'NOISE MAP — Sensor Pattern',     key:'noise_b64',hint:'Inconsistent noise = spliced regions'},
+    {title:'ANNOTATED — Detected Regions',   key:'annotated_b64',hint:'Red boxes = suspicious, Green = authentic'},
+  ];
+  visuals.forEach(v=>{
+    if(!data[v.key]) return;
+    const card=document.createElement('div');
+    card.className='visual-card';
+    card.innerHTML=`
+      <div class="visual-title">${v.title}
+        <span class="visual-hint">${v.hint}</span>
+      </div>
+      <img src="data:image/png;base64,${data[v.key]}" alt="${v.title}"/>
+    `;
+    vgrid.appendChild(card);
+  });
+
+  document.getElementById('results').style.display='block';
+
+  // Animate bars
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    document.querySelectorAll('.score-bar-fill,.mini-bar-fill').forEach(el=>{
+      el.style.width=el.dataset.w+'%';
+    });
+  }));
+}
+
+function switchTab(name,btn){
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+  btn.classList.add('active');
+  // Re-animate bars if switching to overview
+  if(name==='overview'){
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      document.querySelectorAll('.score-bar-fill').forEach(el=>{
+        el.style.width='0%';
+        setTimeout(()=>{el.style.width=el.dataset.w+'%'},50);
+      });
+    }));
+  }
+}
+
+function toggleCard(header){
+  const card=header.closest('.check-card');
+  card.classList.toggle('open');
+  if(card.classList.contains('open')){
+    card.querySelectorAll('.mini-bar-fill').forEach(el=>{
+      setTimeout(()=>{el.style.width=el.dataset.w+'%'},50);
+    });
+  }
+}
+
+function resetApp(){
+  selectedFile=null; fi.value='';
+  document.getElementById('preview-bar').style.display='none';
+  document.getElementById('results').style.display='none';
+  document.getElementById('scan-btn').disabled=false;
+}
+
+function esc(s){
+  if(!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+</script>
+</body>
+</html>
