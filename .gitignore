@@ -1,0 +1,33 @@
+# Virtual environment
+venv/
+env/
+.env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Model weights (large files)
+checkpoints/*.pth
+checkpoints/*.h5
+checkpoints/*.keras
+
+# Uploaded files
+static/uploads/*
+static/reports/*
+
+# Dataset images
+data/raw/authentic/*
+data/raw/forged/*
+
+# Temp files
+*_gray.jpg
+*_gray.png
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
