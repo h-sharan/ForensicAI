@@ -17,7 +17,6 @@ import torch.nn.functional as F
 import timm
 
 
-# ─── Attention Fusion Module ────────────────────────────────────────────────────
 
 class ChannelAttention(nn.Module):
     """Squeeze-and-Excitation style channel attention."""
@@ -42,7 +41,6 @@ class ChannelAttention(nn.Module):
         return x * scale
 
 
-# ─── Single Stream ──────────────────────────────────────────────────────────────
 
 class StreamEncoder(nn.Module):
     """
@@ -73,7 +71,6 @@ class StreamEncoder(nn.Module):
         return self.proj(feat)
 
 
-# ─── Dual-Stream Model ──────────────────────────────────────────────────────────
 
 class DualStreamForgeryDetector(nn.Module):
     """
@@ -126,7 +123,6 @@ class DualStreamForgeryDetector(nn.Module):
             return F.softmax(logits, dim=1)
 
 
-# ─── Lightweight Single-Stream Fallback ─────────────────────────────────────────
 
 class SingleStreamDetector(nn.Module):
     """
@@ -154,7 +150,6 @@ class SingleStreamDetector(nn.Module):
         return self.classifier(feat)
 
 
-# ─── Model Factory ──────────────────────────────────────────────────────────────
 
 def build_model(model_type: str = "dual", pretrained: bool = True,
                 num_classes: int = 2, **kwargs) -> nn.Module:

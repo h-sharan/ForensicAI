@@ -18,6 +18,21 @@ Analyses performed:
   12. Texture Analysis – LBP texture uniformity
 """
 
+import os
+
+# Fix for Linux/Render server
+os.makedirs("static/uploads",  exist_ok=True)
+os.makedirs("static/reports",  exist_ok=True)
+os.makedirs("checkpoints",     exist_ok=True)
+
+# Tesseract path on Linux server
+try:
+    import pytesseract
+    if os.path.exists('/usr/bin/tesseract'):
+        pytesseract.pytesseract.tesseract_cmd = '/usr/bin/tesseract'
+except Exception:
+    pass
+
 import os, io, re, json, base64, time, math
 from pathlib import Path
 from dataclasses import dataclass, field

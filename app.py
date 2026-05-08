@@ -1,7 +1,3 @@
-"""
-app.py - Flask backend for Advanced Document Forgery Detection System
-"""
-
 import os, json, uuid, traceback
 import cv2
 import numpy as np
@@ -110,6 +106,7 @@ def analyze():
         }))
 
     except Exception as e:
+        import traceback
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
